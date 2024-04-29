@@ -1,23 +1,39 @@
-import logo from './logo.svg';
-import './App.css';
+import React, { Suspense, useState, useEffect } from 'react';
+import PostDetails from './Components/Post Details/PostDetails';
+import Posts from './Components/Posts/Posts';
+
+
 
 function App() {
+  const [posts, setPosts] = useState([]);
+  const [selectedPost, setSelectedPost] = useState(null);
+
+  useEffect(() => {
+    fetch('https://jsonplaceholder.typicode.com/posts')
+      .then(response => response.json())
+      .then(data => setPosts(data))
+      .catch(error => {
+        console.error('Error fetching posts:', error);
+      });
+  }, []);
+
+  const handleSelectPost = (post) => {
+    setSelectedPost(post);
+  };
+
+  const handleBack = () => {
+    setSelectedPost(null);
+  };
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+    <div>
+      <Suspense fallback={<div>Loading...</div>}>
+        {selectedPost ? (
+          <PostDetails post={selectedPost} onBack={handleBack} />
+        ) : (
+          <Posts posts={posts} onSelectPost={handleSelectPost} />
+        )}
+      </Suspense>
     </div>
   );
 }
